@@ -86,7 +86,7 @@
         // CSP - 内容安全策略
         var csp = document.createElement('meta');
         csp.httpEquiv = 'Content-Security-Policy';
-        csp.content = "default-src 'self'; img-src 'self' data: https://cdn.simpleicons.org; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
+        csp.content = "default-src 'self'; img-src 'self' data: https://cdn.simpleicons.org; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.lhr.life https://*.serveousercontent.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
         document.head.appendChild(csp);
 
         // X-Frame-Options - 防点击劫持

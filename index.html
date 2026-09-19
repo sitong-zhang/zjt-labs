@@ -3,248 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelican Ride · 鹈鹕骑车</title>
-    <!-- ===== 安全防护层 ===== -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+    <title>证件通 · 管理录入系统</title>
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="no-referrer">
-    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), payment=()">
     <meta name="robots" content="noindex, nofollow">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --radius: 14px;
+        }
         body {
-            background: linear-gradient(180deg, #7ec8e3 0%, #b3e0f2 55%, #8fd98f 55%, #6cbf6c 100%);
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+        .hidden { display: none !important; }
+
+        /* ===== 登录页 ===== */
+        #login-view {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            padding: 20px;
         }
-        .scene {
-            width: min(96vw, 900px);
-            height: min(56vh, 520px);
+        .login-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 44px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 24px 64px rgba(15, 23, 42, 0.25);
+        }
+        .login-logo {
+            width: 64px; height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; margin-bottom: 20px;
+        }
+        .login-card h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+        .login-card .sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field input {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid var(--border); border-radius: 10px;
+            font-size: 15px; outline: none; transition: border-color 0.2s;
+        }
+        .field input:focus { border-color: var(--primary); }
+        .btn {
+            width: 100%; padding: 13px;
+            background: var(--primary); color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--primary-dark); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+        /* ===== 主界面 ===== */
+        #main-view { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+        header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0 20px; flex-wrap: wrap; gap: 10px;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-logo {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+        }
+        .brand h2 { font-size: 19px; font-weight: 700; }
+        .brand .tag { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .logout-btn {
+            background: none; border: 1px solid var(--border);
+            color: var(--muted); padding: 8px 16px; border-radius: 10px;
+            font-size: 13px; cursor: pointer; transition: all 0.2s;
+        }
+        .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+            padding: 24px; margin-bottom: 20px;
+        }
+        .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+        /* 照片上传 */
+        .photo-upload {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
             position: relative;
         }
-        svg { width: 100%; height: 100%; display: block; }
-
-        /* ===== 云 ===== */
-        .cloud { animation: drift linear infinite; }
-        .cloud-1 { animation-duration: 38s; }
-        .cloud-2 { animation-duration: 52s; animation-delay: -20s; }
-        .cloud-3 { animation-duration: 44s; animation-delay: -35s; }
-        @keyframes drift {
-            from { transform: translateX(-120px); }
-            to   { transform: translateX(calc(100% + 140px)); }
+        .photo-upload:hover { border-color: var(--primary); background: #f8fafc; }
+        .photo-upload.has-image { border-style: solid; border-color: var(--success); }
+        .photo-upload img { max-width: 100%; max-height: 200px; border-radius: 8px; display: block; margin: 0 auto; }
+        .photo-upload .hint { color: var(--muted); font-size: 13px; margin-top: 10px; }
+        .photo-upload input[type=file] { display: none; }
+        .photo-upload .preview-empty {
+            color: var(--muted); font-size: 14px; padding: 20px 0;
         }
+        .photo-upload .preview-empty .icon { font-size: 40px; display: block; margin-bottom: 8px; }
 
-        /* ===== 自行车轮 ===== */
-        .wheel-spokes { animation: spin 0.7s linear infinite; transform-origin: center; }
-        .wheel-spokes-f { animation: spin 0.7s linear infinite; transform-origin: center; }
+        /* 提交反馈 */
+        .submit-row { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+        .submit-row .btn { width: auto; min-width: 180px; }
+        .submit-row .status { font-size: 13px; }
+        .submit-row .status.ok { color: var(--success); }
+        .submit-row .status.err { color: var(--danger); }
+
+        /* 人员列表 */
+        .list-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .list-head .count { font-size: 13px; color: var(--muted); }
+        .list-head .refresh-btn {
+            background: none; border: 1px solid var(--border); color: var(--muted);
+            padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer;
+        }
+        .list-head .refresh-btn:hover { color: var(--primary); border-color: var(--primary); }
+        .person-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px; border: 1px solid var(--border);
+            border-radius: 10px; margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        .person-item:hover { background: #f8fafc; }
+        .person-info { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .person-avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #93c5fd, #c4b5fd);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 700; color: #1e3a8a; flex-shrink: 0;
+        }
+        .person-name { font-weight: 600; font-size: 15px; }
+        .person-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+        .person-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .delete-btn {
+            background: none; border: 1px solid #fecaca; color: var(--danger);
+            padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .delete-btn:hover { background: #fef2f2; }
+        .empty-list { text-align: center; color: var(--muted); padding: 32px 0; font-size: 14px; }
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(37, 99, 235, 0.2); border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ===== 脚蹬 ===== */
-        .crank { animation: crank 0.7s linear infinite; transform-origin: center; }
-        @keyframes crank { to { transform: rotate(360deg); } }
-
-        /* ===== 骑行起伏 ===== */
-        .rider { animation: bounce 0.7s ease-in-out infinite; }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-5px); }
-        }
-
-        /* ===== 鹈鹕头颈摇摆 ===== */
-        .pelican-head { animation: bob 0.7s ease-in-out infinite; transform-origin: 330px 240px; }
-        @keyframes bob {
-            0%, 100% { transform: rotate(-4deg); }
-            50%      { transform: rotate(4deg); }
-        }
-
-        /* ===== 翅膀扑动 ===== */
-        @keyframes wing {
-            0%, 100% { transform: rotate(-6deg); }
-            50%      { transform: rotate(6deg); }
-        }
-
-        /* ===== 喉囊 ===== */
-        .pouch { animation: pouch 2.4s ease-in-out infinite; }
-        @keyframes pouch {
-            0%, 100% { transform: scaleY(1); }
-            50%      { transform: scaleY(1.15); }
-        }
-
-        /* ===== 背景道路条纹 ===== */
-        .roadline { animation: roadmove 0.7s linear infinite; }
-        @keyframes roadmove { from { transform: translateX(0); } to { transform: translateX(-60px); } }
-
-        /* ===== 远处山 ===== */
-        .hill { animation: hille 25s linear infinite; }
-        @keyframes hille { from { transform: translateX(-100px); } to { transform: translateX(100%); } }
-
-        /* ===== 阳光 ===== */
-        .sun { animation: pulse 4s ease-in-out infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.9; }
-            50%      { opacity: 1; }
-        }
     </style>
 </head>
 <body>
 
-<div class="scene">
-<svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
-
-    <!-- 天空太阳 -->
-    <circle class="sun" cx="760" cy="70" r="42" fill="#ffd93d" opacity="0.9"/>
-    <circle cx="760" cy="70" r="56" fill="none" stroke="#ffd93d" stroke-opacity="0.3" stroke-width="10"/>
-
-    <!-- 云层 -->
-    <g class="cloud cloud-1" opacity="0.85">
-        <ellipse cx="0" cy="90" rx="52" ry="20" fill="#fff"/>
-        <ellipse cx="-30" cy="80" rx="30" ry="16" fill="#fff"/>
-        <ellipse cx="30" cy="82" rx="34" ry="17" fill="#fff"/>
-    </g>
-    <g class="cloud cloud-2" opacity="0.6">
-        <ellipse cx="0" cy="150" rx="42" ry="16" fill="#fff"/>
-        <ellipse cx="-24" cy="142" rx="26" ry="13" fill="#fff"/>
-        <ellipse cx="24" cy="144" rx="28" ry="14" fill="#fff"/>
-    </g>
-    <g class="cloud cloud-3" opacity="0.7">
-        <ellipse cx="0" cy="50" rx="36" ry="13" fill="#fff"/>
-        <ellipse cx="-20" cy="44" rx="22" ry="11" fill="#fff"/>
-        <ellipse cx="20" cy="46" rx="24" ry="12" fill="#fff"/>
-    </g>
-
-    <!-- 远山 -->
-    <g class="hill" opacity="0.35">
-        <path d="M-100 320 Q -50 240 0 320 Q 60 230 130 320 Q 190 250 250 320 Q 320 235 390 320" fill="#7faf7f"/>
-    </g>
-    <g class="hill" opacity="0.28" style="animation-delay:-12s">
-        <path d="M-100 320 Q -40 260 20 320 Q 90 240 160 320 Q 230 265 300 320" fill="#6f9f6f"/>
-    </g>
-
-    <!-- 地面 -->
-    <rect x="0" y="320" width="900" height="200" fill="#6cbf6c"/>
-    <rect x="0" y="318" width="900" height="5" fill="#5aab5a"/>
-
-    <!-- 道路 -->
-    <rect x="0" y="380" width="900" height="90" fill="#8a8f98"/>
-    <!-- 道路中虚线（动画） -->
-    <g class="roadline">
-        <rect x="20" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="110" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="200" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="290" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="380" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="470" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="560" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="650" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="740" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-        <rect x="830" y="424" width="50" height="6" rx="3" fill="#fff" opacity="0.75"/>
-    </g>
-
-    <!-- ================= 鹈鹕骑自行车 ================= -->
-    <g class="rider">
-
-        <!-- 自行车 -->
-        <g stroke="#e74c3c" stroke-width="6" stroke-linecap="round" fill="none">
-            <!-- 后轮 -->
-            <circle cx="300" cy="430" r="58" stroke-width="7"/>
-            <!-- 前轮 -->
-            <circle cx="500" cy="430" r="58" stroke-width="7"/>
-            <!-- 车架 -->
-            <path d="M300 430 L350 380 L400 430 L350 380 L410 340 L500 430"/>
-            <path d="M350 380 L300 340 L410 340"/>
-            <!-- 座管 -->
-            <path d="M330 385 L330 345"/>
-            <!-- 车把 -->
-            <path d="M410 340 L430 330 L450 330 L445 315"/>
-            <path d="M445 315 L455 322" stroke-width="4"/>
-        </g>
-
-        <!-- 后轮辐条（旋转） -->
-        <g class="wheel-spokes" style="transform-origin:300px 430px">
-            <g stroke="#c0392b" stroke-width="2.5">
-                <line x1="300" y1="375" x2="300" y2="485"/>
-                <line x1="245" y1="430" x2="355" y2="430"/>
-                <line x1="261" y1="391" x2="339" y2="469"/>
-                <line x1="339" y1="391" x2="261" y2="469"/>
-            </g>
-        </g>
-        <!-- 前轮辐条（旋转） -->
-        <g class="wheel-spokes-f" style="transform-origin:500px 430px">
-            <g stroke="#c0392b" stroke-width="2.5">
-                <line x1="500" y1="375" x2="500" y2="485"/>
-                <line x1="445" y1="430" x2="555" y2="430"/>
-                <line x1="461" y1="391" x2="539" y2="469"/>
-                <line x1="539" y1="391" x2="461" y2="469"/>
-            </g>
-        </g>
-
-        <!-- 链条盘 + 脚蹬（旋转） -->
-        <g class="crank" style="transform-origin:350px 380px">
-            <circle cx="350" cy="380" r="16" fill="#d35400" stroke="#a04000" stroke-width="3"/>
-            <line x1="350" y1="380" x2="350" y2="396" stroke="#555" stroke-width="5" stroke-linecap="round"/>
-            <rect x="342" y="392" width="16" height="8" rx="3" fill="#444"/>
-            <line x1="350" y1="380" x2="350" y2="364" stroke="#777" stroke-width="4" stroke-linecap="round"/>
-            <rect x="342" y="356" width="16" height="8" rx="3" fill="#666"/>
-        </g>
-        <!-- 链条 -->
-        <path d="M334 380 Q 300 405 300 430" stroke="#555" stroke-width="3" fill="none" stroke-dasharray="4 3"/>
-
-        <!-- ===== 鹈鹕身体 ===== -->
-        <g>
-            <!-- 尾羽 -->
-            <path d="M272 350 L240 332 L268 342 L244 320 L272 338" fill="#f4f0e6" stroke="#d8d2c4" stroke-width="2"/>
-            <!-- 身体 -->
-            <ellipse cx="310" cy="330" rx="48" ry="38" fill="#fdfbf5" stroke="#d8d2c4" stroke-width="2.5"/>
-            <!-- 翅膀 -->
-            <path d="M310 305 Q 350 295 372 322 Q 355 345 310 350 Z" fill="#efe9db" stroke="#d8d2c4" stroke-width="2"/>
-            <!-- 翅膀扑动 -->
-            <g style="animation: wing 0.7s ease-in-out infinite; transform-origin:310px 320px;">
-                <path d="M330 315 Q 360 300 384 318 Q 362 330 330 330 Z" fill="#e8e0cf" stroke="#d0c8b6" stroke-width="2"/>
-            </g>
-            <!-- 腿（踩脚踏） -->
-            <path d="M310 362 L310 380" stroke="#e8a33d" stroke-width="6" stroke-linecap="round"/>
-            <path d="M320 362 L335 370" stroke="#e8a33d" stroke-width="6" stroke-linecap="round"/>
-        </g>
-
-        <!-- ===== 鹈鹕头颈 ===== -->
-        <g class="pelican-head">
-            <!-- 长颈 -->
-            <path d="M345 315 Q 375 290 388 262 Q 396 245 402 230" stroke="#fdfbf5" stroke-width="16" fill="none" stroke-linecap="round"/>
-            <path d="M345 315 Q 375 290 388 262 Q 396 245 402 230" stroke="#d8d2c4" stroke-width="1.5" fill="none" opacity="0.5"/>
-            <!-- 头 -->
-            <ellipse cx="404" cy="222" rx="17" ry="15" fill="#fdfbf5" stroke="#d8d2c4" stroke-width="2"/>
-            <!-- 眼睛 -->
-            <circle cx="410" cy="218" r="4.5" fill="#222"/>
-            <circle cx="411.5" cy="216.5" r="1.5" fill="#fff"/>
-            <!-- 上喙 -->
-            <path d="M418 220 Q 448 214 468 222 Q 446 232 420 230 Z" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
-            <!-- 下喙 + 喉囊（动画） -->
-            <g class="pouch" style="transform-origin:422px 232px;">
-                <path d="M420 230 Q 448 236 466 224 Q 452 252 438 258 Q 430 262 424 248 Z" fill="#f6a6a0" stroke="#e08380" stroke-width="2"/>
-            </g>
-        </g>
-
-        <!-- 车把上的小旗 -->
-        <g>
-            <line x1="455" y1="322" x2="460" y2="290" stroke="#888" stroke-width="3"/>
-            <path d="M460 290 L492 298 L460 306 Z" fill="#e74c3c">
-                <animate attributeName="points" dur="0.7s" repeatCount="indefinite"
-                    values="460 290 492 298 460 306; 460 290 488 298 460 306; 460 290 492 298 460 306"/>
-            </path>
-        </g>
-
-        <!-- 踏板动画提示文字 -->
-        <text x="410" y="500" font-size="20" fill="#3d6b3d" font-family="PingFang SC, Microsoft YaHei" text-anchor="middle" opacity="0.85">🦩 鹈鹕骑车去兜风 🚴</text>
-    </g>
-
-</svg>
+<!-- ========== 登录界面 ========== -->
+<div id="login-view">
+    <div class="login-card">
+        <div class="login-logo">🪪</div>
+        <h1>证件通 · 管理后台</h1>
+        <div class="sub">人脸通行证 · 人员录入系统</div>
+        <div class="field">
+            <label>管理员凭证</label>
+            <input type="password" id="login-token" placeholder="请输入管理 Token" autocomplete="off">
+        </div>
+        <button class="btn" id="login-btn" onclick="doLogin()">登 录</button>
+        <div class="error-msg" id="login-error"></div>
+    </div>
 </div>
 
+<!-- ========== 主界面 ========== -->
+<div id="main-view" class="hidden">
+    <header>
+        <div class="brand">
+            <div class="brand-logo">🪪</div>
+            <div>
+                <h2>证件通 · 管理录入系统</h2>
+                <div class="tag">人脸特征库 · 录入端（识别端为通行版 App）</div>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">退出登录</button>
+    </header>
+
+    <!-- 录入表单 -->
+    <div class="card">
+        <h3>📝 录入新人员</h3>
+        <form id="enroll-form" onsubmit="submitEnroll(event)">
+            <div class="form-grid">
+                <div class="field">
+                    <label>姓名 <span style="color:var(--danger)">*</span></label>
+                    <input type="text" id="f-name" placeholder="必填" required>
+                </div>
+                <div class="field">
+                    <label>性别</label>
+                    <input type="text" id="f-gender" placeholder="男 / 女">
+                </div>
+                <div class="field">
+                    <label>民族</label>
+                    <input type="text" id="f-ethnicity" placeholder="如：汉族">
+                </div>
+                <div class="field">
+                    <label>出生日期</label>
+                    <input type="text" id="f-birth" placeholder="如：1990-01-01">
+                </div>
+                <div class="field">
+                    <label>证件号码</label>
+                    <input type="text" id="f-idnum" placeholder="身份证号 / 工号">
+                </div>
+                <div class="field">
+                    <label>部门</label>
+                    <input type="text" id="f-department" placeholder="所属部门">
+                </div>
+                <div class="field">
+                    <label>单位 / 组织</label>
+                    <input type="text" id="f-org" placeholder="单位名称">
+                </div>
+                <div class="field">
+                    <label>联系电话</label>
+                    <input type="text" id="f-phone" placeholder="手机号">
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label>住址</label>
+                    <input type="text" id="f-address" placeholder="通讯地址（选填）">
+                </div>
+            </div>
+
+            <div style="margin-top: 14px;">
+                <label>人脸照片 <span style="color:var(--danger)">*</span></label>
+                <div class="photo-upload" id="photo-box" onclick="document.getElementById('f-photo').click()">
+                    <input type="file" id="f-photo" accept="image/*" capture="user" onchange="previewPhoto(this)">
+                    <div class="preview-empty" id="photo-preview">
+                        <span class="icon">📷</span>
+                        点击拍照 / 选择清晰正面照片
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit-row">
+                <button class="btn" type="submit" id="submit-btn">⬆ 提交录入</button>
+                <span class="status" id="submit-status"></span>
+            </div>
+        </form>
+    </div>
+
+    <!-- 人员列表 -->
+    <div class="card">
+        <div class="list-head">
+            <h3 style="margin-bottom:0">👥 已录入人员</h3>
+            <div style="display:flex;align-items:center;gap:10px">
+                <span class="count" id="person-count"></span>
+                <button class="refresh-btn" onclick="loadPersons()">🔄 刷新</button>
+            </div>
+        </div>
+        <div id="person-list"></div>
+    </div>
+</div>
+
+<!-- ===== 防护引擎 ===== -->
+<script src="config.js"></script>
 <script src="guard.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    var API = window.ZJT_CONFIG.API_BASE;
+    var TOKEN_KEY = 'zjt_admin_token';
+
+    // ===== 登录 =====
+    window.doLogin = function () {
+        var token = document.getElementById('login-token').value.trim();
+        var errEl = document.getElementById('login-error');
+        if (!token) { errEl.textContent = '请输入管理凭证'; return; }
+        // 用 health 验证 + 保存 token
+        sessionStorage.setItem(TOKEN_KEY, token);
+        showMain();
+        errEl.textContent = '';
+    };
+
+    window.doLogout = function () {
+        sessionStorage.removeItem(TOKEN_KEY);
+        location.reload();
+    };
+
+    // ===== 视图切换 =====
+    function showMain() {
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('main-view').classList.remove('hidden');
+        loadPersons();
+    }
+
+    // ===== 照片预览 =====
+    window.previewPhoto = function (input) {
+        var box = document.getElementById('photo-box');
+        var preview = document.getElementById('photo-preview');
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" alt="预览">';
+                box.classList.add('has-image');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+
+    // ===== 提交录入 =====
+    window.submitEnroll = function (ev) {
+        ev.preventDefault();
+        var fileInput = document.getElementById('f-photo');
+        var status = document.getElementById('submit-status');
+        var btn = document.getElementById('submit-btn');
+
+        if (!fileInput.files || !fileInput.files[0]) {
+            status.className = 'status err';
+            status.textContent = '⚠ 请先选择人脸照片';
+            return;
+        }
+        var file = fileInput.files[0];
+        if (file.size > (window.ZJT_CONFIG.MAX_PHOTO_MB || 10) * 1024 * 1024) {
+            status.className = 'status err';
+            status.textContent = '⚠ 照片超过 ' + (window.ZJT_CONFIG.MAX_PHOTO_MB || 10) + 'MB 上限';
+            return;
+        }
+
+        var fd = new FormData();
+        fd.append('photo', file);
+        fd.append('name', document.getElementById('f-name').value.trim());
+        fd.append('gender', document.getElementById('f-gender').value.trim());
+        fd.append('ethnicity', document.getElementById('f-ethnicity').value.trim());
+        fd.append('birth', document.getElementById('f-birth').value.trim());
+        fd.append('address', document.getElementById('f-address').value.trim());
+        fd.append('id_number', document.getElementById('f-idnum').value.trim());
+        fd.append('department', document.getElementById('f-department').value.trim());
+        fd.append('organization', document.getElementById('f-org').value.trim());
+        fd.append('phone', document.getElementById('f-phone').value.trim());
+
+        btn.disabled = true;
+        status.className = 'status';
+        status.innerHTML = '<span class="spinner"></span> 正在提取人脸特征并入库…（首次约 10 秒）';
+
+        fetch(API + '/api/enroll', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem(TOKEN_KEY) },
+            body: fd
+        })
+        .then(function (resp) {
+            if (resp.status === 401) throw new Error('凭证无效，请重新登录');
+            return resp.json().then(function (data) {
+                if (!resp.ok) throw new Error(data.detail || ('HTTP ' + resp.status));
+                return data;
+            });
+        })
+        .then(function (person) {
+            status.className = 'status ok';
+            status.textContent = '✅ 录入成功：' + person.name + '（人脸特征已入库）';
+            ev.target.reset();
+            document.getElementById('photo-preview').innerHTML = '<span class="icon">📷</span>点击拍照 / 选择清晰正面照片';
+            document.getElementById('photo-box').classList.remove('has-image');
+            loadPersons();
+        })
+        .catch(function (err) {
+            status.className = 'status err';
+            status.textContent = '❌ ' + err.message;
+        })
+        .finally(function () { btn.disabled = false; });
+    };
+
+    // ===== 人员列表 =====
+    window.loadPersons = function () {
+        var listEl = document.getElementById('person-list');
+        var countEl = document.getElementById('person-count');
+        listEl.innerHTML = '<div class="empty-list"><span class="spinner"></span> 加载中…</div>';
+
+        fetch(API + '/api/persons')
+        .then(function (resp) { return resp.json(); })
+        .then(function (persons) {
+            countEl.textContent = persons.length + ' 人';
+            if (!persons.length) {
+                listEl.innerHTML = '<div class="empty-list">暂无录入人员</div>';
+                return;
+            }
+            var html = persons.map(function (p) {
+                var avatar = (p.name || '?').charAt(0);
+                var meta = [p.department, p.organization, p.phone].filter(Boolean).join(' · ') || '无更多信息';
+                var ts = p.created_at ? new Date(p.created_at * 1000).toLocaleString() : '';
+                return '' +
+                    '<div class="person-item">' +
+                    '  <div class="person-info">' +
+                    '    <div class="person-avatar">' + avatar + '</div>' +
+                    '    <div>' +
+                    '      <div class="person-name">' + esc(p.name) + '</div>' +
+                    '      <div class="person-meta">' + esc(meta) + ' · ' + ts + '</div>' +
+                    '    </div>' +
+                    '  </div>' +
+                    '  <div class="person-actions">' +
+                    '    <button class="delete-btn" onclick="deletePerson(\'' + p.id + '\', \'' + escJS(p.name) + '\')">删除</button>' +
+                    '  </div>' +
+                    '</div>';
+            }).join('');
+            listEl.innerHTML = html;
+        })
+        .catch(function (err) {
+            listEl.innerHTML = '<div class="empty-list" style="color:var(--danger)">加载失败：' + esc(err.message) + '</div>';
+        });
+    };
+
+    window.deletePerson = function (id, name) {
+        if (!confirm('确定删除人员「' + name + '」？识别端将无法再识别此人。')) return;
+        fetch(API + '/api/persons/' + encodeURIComponent(id), {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem(TOKEN_KEY) }
+        })
+        .then(function (resp) {
+            if (resp.status === 401) throw new Error('凭证无效');
+            if (!resp.ok && resp.status !== 204) throw new Error('HTTP ' + resp.status);
+            loadPersons();
+        })
+        .catch(function (err) { alert('删除失败：' + err.message); });
+    };
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '"', "'": '&#39;' }[c];
+        });
+    }
+    function escJS(s) {
+        return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '');
+    }
+
+    // ===== 初始化 =====
+    if (sessionStorage.getItem(TOKEN_KEY)) {
+        showMain();
+    }
+})();
+</script>
 </body>
 </html>
