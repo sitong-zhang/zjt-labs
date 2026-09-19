@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>正在维护</title>
+    <!-- ===== 安全防护层 ===== -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="no-referrer">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000">
+    <meta name="robots" content="noindex, nofollow">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -59,5 +67,7 @@
         <p>服务暂停使用</p>
         <div class="tag">请稍后再来</div>
     </div>
+    <!-- 前端防护引擎（频率检测 / 行为挑战 / 黑名单） -->
+    <script src="guard.js"></script>
 </body>
 </html>
