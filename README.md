@@ -1,5 +1,7 @@
 # ZJT Studio · 多功能在线工具箱
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 一个简洁高效的在线工具箱静态站点，聚合常用工具入口，开箱即用、无需安装。
 
 ## 功能
