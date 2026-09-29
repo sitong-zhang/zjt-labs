@@ -1,27 +1,28 @@
-# ZJT Studio · 多功能在线工具箱
+# ZJT Studio · Online Toolbox
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-一个简洁高效的在线工具箱静态站点，聚合常用工具入口，开箱即用、无需安装。
+A clean, efficient static toolbox site that gathers handy utilities in one
+place — ready to use, nothing to install.
 
-## 功能
+## Features
 
-- 🛠️ 常用工具快捷入口
-- 📦 纯静态部署，零依赖
-- 📱 移动端友好响应式布局
+- 🛠️ Quick access to everyday tools
+- 📦 Pure static deployment, zero dependencies
+- 📱 Responsive, mobile-friendly layout
 
-## 在线访问
+## Links
 
-- 静态站点：https://sitong-zhang.github.io/zjt-labs/
+- Static site: https://sitong-zhang.github.io/zjt-labs/
 
-## 本地运行
+## Run locally
 
 ```bash
 python3 -m http.server 8000
 ```
 
-然后浏览器打开 http://localhost:8000/ 即可预览。
+Then open http://localhost:8000/ in your browser.
 
 ---
 
-> 项目基于 HTML/CSS/JS 构建，后续将逐步扩充更多实用小工具。
+> Built with plain HTML/CSS/JS. More utilities will be added over time.
